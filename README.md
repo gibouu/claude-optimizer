@@ -88,6 +88,27 @@ Then add the suggested lines from `templates/gitignore-snippet.txt` to your proj
 
 No edits needed — `${CLAUDE_PLUGIN_ROOT}` resolves correctly when installed this way. Active in every project automatically.
 
+## Per-project setup (one-time)
+
+To keep the per-session counter and archive folder out of commits, run the bundled helper from any project once:
+
+```bash
+# in any project where you want optimizer state out of commits
+bash ~/path/to/claude-optimizer/scripts/install_to_project.sh
+```
+
+It appends the lines from `templates/gitignore-snippet.txt` to that project's `.gitignore`. Idempotent — re-running does nothing if the snippet is already there.
+
+## Disabling per-project
+
+Some repos shouldn't accumulate memory or progress logs. To opt out:
+
+```bash
+touch .claude/optimizer-disabled
+```
+
+`init_state.sh` exits silently when that file is present, so no `.claude/state/` directory is created and no hooks write anything for that project.
+
 ## What you'll notice
 
 - Claude reads state silently at session start; only speaks up if there's in-progress work.

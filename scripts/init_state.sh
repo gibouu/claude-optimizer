@@ -12,6 +12,11 @@ case "$ROOT" in
   "" | "/" | "$HOME") echo "claude-optimizer: refusing to init in '$ROOT'" >&2; exit 1 ;;
 esac
 
+# Per-project opt-out: if the user dropped a sentinel file, skip everything silently.
+if [ -f "$ROOT/.claude/optimizer-disabled" ]; then
+  exit 0
+fi
+
 STATE="$ROOT/.claude/state"
 mkdir -p "$STATE/archive"
 
