@@ -1,0 +1,13 @@
+{
+  "name": "claude-optimizer",
+  "owner": {
+    "name": "gib"
+  },
+  "plugins": [
+    {
+      "name": "claude-optimizer",
+      "source": "./",
+      "description": "Lean plugin: persistent memory, token discipline, task tracking, session resume, and a quality gate."
+    }
+  ]
+}
