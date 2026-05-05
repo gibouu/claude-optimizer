@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.0 — 2026-05-05
+
+Closes the "plugin is theater" gap reported in #1: state files now actually accrue, the harness enforces the contract, and skill triggers are observable events rather than fuzzy moments.
+
+- **Auto-progress logging (#2 / #1 option C).** `post_edit.sh` parses the PostToolUse payload and inserts a one-line `[YYYY-MM-DD HH:MM] tool: path` entry at the top of `PROGRESS.md` after every Write/Edit/MultiEdit. Eliminates the "state files stay empty" symptom without depending on model discipline.
+- **PromptSubmit directive injection (#6 / #1 option A).** `prompt_submit.sh` is no longer a no-op. Every 5 edits, the next user prompt receives an additional-context block instructing Claude to invoke `cm-task-tracker` and `cm-memory` before responding. UserPromptSubmit stdout is surfaced as inline context — much harder to ignore than stderr nags.
+- **Stop hook is a real gate (#7 / #1 option B).** `stop.sh` now exits 2 (blocks) when the working tree is dirty, edit count ≥ 5, and no model-driven state file has been touched since session start. Loop guard prevents repeat-blocking at the same edit count; mid-rebase / mid-merge / mid-cherry-pick states skip the gate; per-project opt-out remains.
+- **Concrete observable cm-* triggers (#8 / #1 option D).** All six `cm-*` skill descriptions now lead with deterministic events (post-`git commit`, pre-`git push`, pre-`gh pr create`, completion phrases, decision phrases, hook events) instead of fuzzy ones. Each skill lists ≥3 concrete triggers; existing fuzzy guidance is preserved as fallback.
+- **Plumbing.** `session_start.sh` writes `.session_start_marker` for the Stop gate's freshness check; `session_end.sh` cleans up `.session_start_marker`, `.last_directive_count`, and `.last_stop_block_count` alongside `.edit_count`.
+
 ## v0.2.1 — 2026-04-30
 
 - Register repo as a plugin marketplace (`.claude-plugin/marketplace.json`) so `/plugin marketplace add` and `/plugin install` work end-to-end.
