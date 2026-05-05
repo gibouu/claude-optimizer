@@ -1,6 +1,6 @@
 {
   "name": "claude-optimizer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Lean plugin: persistent memory, token discipline, task tracking, session resume, and a quality gate. Drops into any codebase as .claude/ or installs as a Claude Code plugin.",
   "author": {
     "name": "gib"

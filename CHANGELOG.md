@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0 — 2026-05-05
+
+Closes the Tier 2/3 follow-ups from #1.
+
+- **Bundled `cm-checkpoint` skill (#13 / #1 option E).** Single auto-invoking skill that atomically writes to PROGRESS / DECISIONS / TASKS / MEMORY in one pass. Removes the "which-skill-now" ambiguity that suppressed cm-* invocations. PromptSubmit and Stop messages now name `cm-checkpoint` as the primary action with the granular skills as alternatives.
+- **SessionStart "last meaningful state write" counter (#14 / #1 option F).** Banner now surfaces the youngest mtime among TASKS / DECISIONS / MEMORY beyond their init seed, formatted as "just now" / "N minutes ago" / "N hours ago" / "N days ago" / "never". `cm-checkpoint` added to the banner's Skills line. PROGRESS deliberately excluded from the freshness check (it's auto-touched on every edit).
+- **`/optimizer-audit` slash command (#15 / #1 option H).** Read-only compliance dashboard: edits, commits, state-file touches, harness firings, derived compliance percentage. Backed by `scripts/optimizer_audit.sh`; cross-platform (BSD/GNU stat + date).
+
 ## v0.3.0 — 2026-05-05
 
 Closes the "plugin is theater" gap reported in #1: state files now actually accrue, the harness enforces the contract, and skill triggers are observable events rather than fuzzy moments.
