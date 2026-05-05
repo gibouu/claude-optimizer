@@ -1,6 +1,6 @@
 ---
 name: cm-secret-hygiene
-description: Use this skill on every session in this repository, and especially before reading any file whose name or path looks sensitive. Defines what Claude must never read, never write to state, and never include in tool calls. Auto-active alongside cm-token-discipline.
+description: Use before any Read/Write/Edit on files matching `.env*`, `*.pem`, `*.key`, `id_rsa*`, `~/.aws/`, `~/.ssh/`, or paths containing `secret`/`credential`/`token`/`password`; before any Write/Edit to `.claude/state/*.md`; and whenever scan_secrets.sh emits a warning to stderr. Also auto-active on every session alongside cm-token-discipline. Defines what Claude must never read, never write to state, and never include in tool calls.
 ---
 
 # Secret Hygiene

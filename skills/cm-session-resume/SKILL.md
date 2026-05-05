@@ -1,6 +1,6 @@
 ---
 name: cm-session-resume
-description: Use this skill at the very start of every Claude Code session in this repository, before responding to the user's first message. Reads the state files, surfaces any in-progress work, and primes the session with the minimum context needed.
+description: Use once per session at SessionStart, before any response to the user's first message in a new conversation, and after any /clear or /compact event that resets in-context history. Reads .claude/state/{MEMORY,DECISIONS,TASKS,PROGRESS}.md, surfaces any IN_PROGRESS or BLOCKED task in one line, and otherwise stays silent. Primes the session with the minimum context needed.
 ---
 
 # Session Resume
