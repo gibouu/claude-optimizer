@@ -45,8 +45,8 @@ if [ "$COUNT" -ge 5 ] && [ $((COUNT % 5)) -eq 0 ] && [ "$LAST" -lt "$COUNT" ]; t
   cat <<EOF
 [claude-optimizer] State checkpoint required.
 You have made $COUNT edits this session without a state write. Before responding to the user's prompt:
-- Invoke cm-task-tracker to bring TASKS.md current (open tasks, status changes, completions).
-- Invoke cm-memory to append a PROGRESS.md summary of work since the last checkpoint and any DECISIONS.md entries for non-obvious choices.
+- Invoke cm-checkpoint to atomically update PROGRESS.md / TASKS.md / DECISIONS.md / MEMORY.md as warranted (the bundled skill — preferred).
+- Or, if you only need to touch one file, invoke cm-task-tracker (TASKS.md) or cm-memory (PROGRESS / DECISIONS / MEMORY) directly.
 This is a hard requirement under this project's claude-optimizer plugin contract. Do this BEFORE addressing the user's prompt; do not skip or defer.
 EOF
 fi

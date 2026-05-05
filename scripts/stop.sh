@@ -94,8 +94,8 @@ cat >&2 <<EOF
 Reason: $COUNT edits this session, working tree is dirty, and no model-driven state file (TASKS.md / DECISIONS.md / MEMORY.md) has been touched since session start.
 
 Before stopping again, do at least one of:
-  - Invoke cm-task-tracker and append/close entries in TASKS.md.
-  - Invoke cm-memory to record any decisions in DECISIONS.md or stable facts in MEMORY.md.
+  - Invoke cm-checkpoint to atomically write PROGRESS / DECISIONS / TASKS / MEMORY in one pass (preferred).
+  - Invoke cm-task-tracker (TASKS.md) or cm-memory (PROGRESS / DECISIONS / MEMORY) directly if only one file is stale.
   - Commit the working tree (clean tree exits this gate).
   - If this gate is wrong for your workflow, set CLAUDE_PROJECT_DIR/.claude/optimizer-disabled to opt out.
 
