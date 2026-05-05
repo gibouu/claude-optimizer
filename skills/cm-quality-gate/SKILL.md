@@ -1,6 +1,6 @@
 ---
 name: cm-quality-gate
-description: Use this skill before declaring any code task complete, before saying "done", before committing, and before handing control back to the user after edits. Runs the project's actual test/lint/typecheck commands and refuses to mark work done if any fail. Also use when the user asks "is this ready" or "are we done".
+description: Use before any `git commit`, before any `git push`, before any `gh pr create`, before marking a TASKS.md entry as DONE, and before the literal word "done" appears in a response to the user. Runs the project's actual test/lint/typecheck/build commands and refuses to mark work done if any fail. Also use when the user asks "is this ready" or "are we done", and before handing control back to the user after a batch of edits.
 ---
 
 # Quality Gate

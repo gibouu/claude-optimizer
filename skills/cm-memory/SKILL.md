@@ -1,6 +1,6 @@
 ---
 name: cm-memory
-description: Use this skill at the start of every coding session and whenever the user references past work, prior decisions, "what we did", "last time", "where we left off", or asks for context. Reads MEMORY.md, DECISIONS.md, and PROGRESS.md from .claude/state/ and surfaces only the relevant slices. Also use this skill when finishing a unit of work to append a structured memory entry.
+description: Use after every successful `git commit`, before any `git push`, when the user signals completion ("done", "ship it", "looks good", "push it", "merge it"), when the user makes a decision ("decided", "chose", "going with", "switched to"), and whenever the harness Stop hook blocks reporting stale state. Also use at the start of every coding session and whenever the user references prior work ("last time", "what we did", "where we left off"). Reads MEMORY.md / DECISIONS.md / PROGRESS.md from .claude/state/ and appends terse structured entries for non-obvious decisions, root-cause fixes, and stable project facts.
 ---
 
 # Project Memory Protocol

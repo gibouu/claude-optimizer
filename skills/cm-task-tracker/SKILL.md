@@ -1,6 +1,6 @@
 ---
 name: cm-task-tracker
-description: Use this skill whenever the user describes a multi-step task, a feature, a refactor, or anything that will take more than three turns. Maintains an explicit task ledger in .claude/state/TASKS.md so context drift cannot lose work. Also use when resuming, when blocked, and before declaring something done.
+description: Use immediately after creating a feature branch (`git checkout -b feat/...` or `fix/...`), when the user describes work with explicit step structure (numbered lists, "first X then Y", "do A, B, C"), before any `git push` or `gh pr create`, and whenever the harness Stop hook blocks asking for TASKS.md updates. Also use when resuming a session with an IN_PROGRESS entry, when work becomes blocked, before marking a task DONE, or whenever the user describes a multi-step task or refactor. Maintains the .claude/state/TASKS.md ledger so context drift cannot lose work.
 ---
 
 # Task Tracker
