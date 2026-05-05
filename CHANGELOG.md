@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.0 — 2026-05-05
+
+- **`cm-issue-driven-workflow` skill (#18 / closes #17).** Codifies the user's preferred development flow as an auto-invoking skill: refine via brainstorming → file GitHub issue → branch → fix → test → PR with `Closes #<N>` → self-review → merge --squash --delete-branch → pull main. Triggers on conversational problem-language ("I want to…", "we should…", "this is broken", etc.) and includes explicit off-ramps for trivial work (precise file:line instructions, "just X", ≤10-line single-file changes, no GitHub remote). Plugin is always-on across repos, so this becomes a portable SOP without per-project setup. Banner Skills line updated.
+
 ## v0.4.0 — 2026-05-05
 
 Closes the Tier 2/3 follow-ups from #1.
