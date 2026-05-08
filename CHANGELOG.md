@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.11.0 — 2026-05-08
+
+Closes the Tier 4 polish bundle from #20's plan (last in the issue-driven-workflow series).
+
+- **`/research <topic>` slash command (#31 / closes #26).** Wraps the cm-research-first SOP into a reusable command for moments when the user wants quick best-practices research without going through the full conversational flow. Body parses the topic from `$1`, issues 1–2 WebSearch calls with recency hints, synthesises 2–3 approaches with pros/cons + recommendation, and writes the output as an Architecture Decision Record at `docs/adr/<NNNN>-<slug>.md`. Auto-numbers from the highest existing `NNNN-*.md` (starts at `0001`).
+- **ADR generator.** Built into `/research` rather than a separate hook — keeps the surface area small. Every research call captures a permanent record. Establishes a long-term decision log without manual bookkeeping.
+- **Structured GitHub issue templates (`.github/ISSUE_TEMPLATE/`).** `feature_request.md` and `bug_report.md` provide the canonical sections: TL;DR · Problem/Repro · Acceptance · Out of scope · Risk · Alternatives considered. Picked up automatically by the GitHub UI; referenced in `cm-issue-driven-workflow` SKILL.md so model-driven `gh issue create` calls follow the same shape.
+- **No regression.** All 38 tests across the three suites still green.
+
 ## v0.10.0 — 2026-05-08
 
 - **PR pre-flight gate (#30 / closes #25).** New `scripts/pr_preflight.sh` PreToolUse(Bash) hook wired in `hooks/hooks.json`. Fires on every Bash command but exits silently unless the command contains `gh pr create`. For non-trivial diffs (≥ 50 lines OR ≥ 2 files vs. main), the command body must include `Closes #N` or `Refs #N` referencing a real OPEN GitHub issue. Closed or missing issue → block. Scope-bloat warning at > 300 lines / > 5 files (advisory, not blocking).
