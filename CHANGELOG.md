@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.0 — 2026-05-08
+
+- **Hook-enforced `cm-issue-driven-workflow` (#21 / closes #20).** `prompt_submit.sh` now inspects the user's prompt (jq + sed fallback for stdin JSON) and injects a directive when it detects conversational request phrasing. Off-ramp regex (precise file:line, "just X", "quick fix", direct rename/delete imperatives, "skip the issue") suppresses the directive on precise instructions. Heuristic complexity classifier rides `[complexity: simple|moderate|complex]` into the directive based on prompt length, keyword density, and file mentions. SHA-1 fingerprint cooldown via `.last_intent_fingerprint` prevents repeat-firing on identical prompts; cleared by `session_end.sh`. Promotes the SOP from model-judgment invocation to hook-level enforcement, mirroring the pattern of the existing edit-count state-checkpoint directive. Both blocks concatenate naturally when they fire on the same prompt.
+- **First test harness (`tests/test_prompt_submit.sh`).** Hand-rolled bash runner over fixture directories — no BATS dependency. Twelve cases cover trigger phrases (basic / complex / simple), four off-ramps (just, quick fix, file:line, skip), cooldown repeat/re-arm, concurrent state-checkpoint emission, no-jq fallback, and empty stdin. Documented in the new `CONTRIBUTING.md` as the verification command.
+
 ## v0.5.0 — 2026-05-05
 
 - **`cm-issue-driven-workflow` skill (#18 / closes #17).** Codifies the user's preferred development flow as an auto-invoking skill: refine via brainstorming → file GitHub issue → branch → fix → test → PR with `Closes #<N>` → self-review → merge --squash --delete-branch → pull main. Triggers on conversational problem-language ("I want to…", "we should…", "this is broken", etc.) and includes explicit off-ramps for trivial work (precise file:line instructions, "just X", ≤10-line single-file changes, no GitHub remote). Plugin is always-on across repos, so this becomes a portable SOP without per-project setup. Banner Skills line updated.
