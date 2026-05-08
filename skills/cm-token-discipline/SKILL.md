@@ -1,6 +1,6 @@
 ---
 name: cm-token-discipline
-description: Use on every coding response in this repository, before composing any closing summary or "I've now done X, Y, Z" recap, before re-reading a file already read this turn, and before generating preamble like "Sure!" / "Great question" / "I'd be happy to". Enforces lean output, prevents preamble/postamble bloat, restricts redundant file reads, and bans speculative explanation. Auto-active for all sessions in projects that ship this plugin.
+description: Use on every coding response. Bans preamble ("Sure!", "Great question"), trailing summaries, redundant file reads, and speculative explanation. Auto-active in all sessions.
 ---
 
 # Token Discipline

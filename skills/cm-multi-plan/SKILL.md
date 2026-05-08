@@ -1,6 +1,6 @@
 ---
 name: cm-multi-plan
-description: Use whenever drafting a Plan-mode plan file for a moderate or complex task — i.e. when the previous turn's directive contained `[complexity: moderate]` or `[complexity: complex]`. Required: include an "Alternatives" / "Tradeoffs" section listing 2–3 distinct approaches with explicit pros/cons before settling on a single recommendation. The plugin's PreToolUse(ExitPlanMode) gate enforces this — without one of the canonical headings (`alternatives`, `options`, `approaches`, `tradeoffs`, `decisions`, `considered`, `comparison`) in the plan file, ExitPlanMode is blocked. Trivial plans (under 30 lines, or off-ramp prompts with no complexity tag) bypass the requirement.
+description: Use when drafting a Plan-mode plan for moderate/complex work. Plan must include an Alternatives/Tradeoffs/Decisions section with 2-3 approaches before ExitPlanMode. Hook gate enforces. Trivial plans (<30 lines) bypass.
 ---
 
 # Multi-Plan (SOP)

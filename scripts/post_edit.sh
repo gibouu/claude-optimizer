@@ -29,7 +29,6 @@ append_progress_entry() {
     tool=$(printf '%s' "$PAYLOAD" | jq -r '.tool_name // empty' 2>/dev/null || true)
     file=$(printf '%s' "$PAYLOAD" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)
   else
-    # Fallback parser. Adequate for typical paths; gives up on weird escapes.
     tool=$(printf '%s' "$PAYLOAD" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*:[[:space:]]*"\([^"]*\)".*/\1/')
     file=$(printf '%s' "$PAYLOAD" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*:[[:space:]]*"\([^"]*\)".*/\1/')
   fi
@@ -37,21 +36,16 @@ append_progress_entry() {
   [ -n "$file" ] || return 0
   [ -n "$tool" ] || tool="edit"
 
-  # Make path relative to project root when possible.
   local rel="$file"
   case "$file" in
     "$ROOT"/*) rel="${file#"$ROOT"/}" ;;
   esac
-
-  # Strip control characters from the components we splice into the file.
   rel=$(printf '%s' "$rel" | tr -d '\000-\037')
   tool=$(printf '%s' "$tool" | tr -d '\000-\037')
 
   local entry
   entry="[$(date '+%Y-%m-%d %H:%M')] ${tool}: ${rel}"
 
-  # Insert as line 3 — newest first, just below the two-line header. If the
-  # file is shorter than the seed, just append.
   local lines
   lines=$(wc -l < "$progress" | tr -d ' ')
   local tmp="$progress.tmp.$$"
@@ -66,6 +60,37 @@ append_progress_entry() {
   fi
 }
 append_progress_entry || true
+
+# R6: prune PROGRESS.md when it grows past header + 100 entries. Archive
+# overflow into .claude/state/archive/PROGRESS-YYYYMM.md so older entries
+# are retrievable but don't bloat the active file (which cm-session-resume
+# reads on every session).
+prune_progress() {
+  local progress="$STATE_DIR/PROGRESS.md"
+  [ -f "$progress" ] || return 0
+
+  local lines
+  lines=$(wc -l < "$progress" 2>/dev/null | tr -d ' ' || echo 0)
+  # Header is 2 lines; keep the 100 newest entries.
+  [ "${lines:-0}" -le 102 ] && return 0
+
+  local archive_dir="$STATE_DIR/archive"
+  mkdir -p "$archive_dir" 2>/dev/null || return 0
+  local month archive_file
+  month=$(date '+%Y%m' 2>/dev/null || echo "unknown")
+  archive_file="$archive_dir/PROGRESS-${month}.md"
+
+  # Append overflow (oldest entries — lines 103 onwards) to the archive.
+  {
+    [ -f "$archive_file" ] && cat "$archive_file"
+    printf '\n## Archived %s\n' "$(date '+%Y-%m-%d %H:%M' 2>/dev/null || echo unknown)"
+    tail -n +103 "$progress"
+  } > "${archive_file}.tmp" 2>/dev/null && mv "${archive_file}.tmp" "$archive_file" 2>/dev/null
+
+  # Truncate PROGRESS.md to header + 100 newest.
+  head -n 102 "$progress" > "${progress}.tmp" 2>/dev/null && mv "${progress}.tmp" "$progress" 2>/dev/null
+}
+prune_progress || true
 
 # 3) Edit-counter reminder.
 COUNT_FILE="$STATE_DIR/.edit_count"

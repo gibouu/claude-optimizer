@@ -1,4 +1,6 @@
-# Pre-seed .last_intent_fingerprint with a stale value (different from the
-# input prompt's fingerprint). Directive should fire because the new prompt
-# has a different fingerprint.
-echo "stale99fp00x" > "$PROJ_DIR/.claude/state/.last_intent_fingerprint"
+# Pre-seed .recent_fingerprints with stale entries that don't match the input
+# prompt. Directive should fire because the new fp isn't in the ring buffer.
+{
+  echo "stale99fp00x"
+  echo "another1stale"
+} > "$PROJ_DIR/.claude/state/.recent_fingerprints"

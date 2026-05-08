@@ -1,6 +1,6 @@
 ---
 name: cm-memory
-description: Use after every successful `git commit`, before any `git push`, when the user signals completion ("done", "ship it", "looks good", "push it", "merge it"), when the user makes a decision ("decided", "chose", "going with", "switched to"), and whenever the harness Stop hook blocks reporting stale state. Also use at the start of every coding session and whenever the user references prior work ("last time", "what we did", "where we left off"). Reads MEMORY.md / DECISIONS.md / PROGRESS.md from .claude/state/ and appends terse structured entries for non-obvious decisions, root-cause fixes, and stable project facts.
+description: Use after a commit, on completion signals, after a non-obvious decision, when the user references prior work, or when the Stop hook reports stale state. Appends terse entries to .claude/state/{MEMORY,DECISIONS,PROGRESS}.md.
 ---
 
 # Project Memory Protocol

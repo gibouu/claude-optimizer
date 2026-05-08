@@ -1,6 +1,6 @@
 ---
 name: cm-decompose
-description: Use right after a Plan-mode plan has been approved (ExitPlanMode just succeeded) when the plan describes ≥2 discrete deliverables. Concrete trigger: ExitPlanMode just returned successfully AND the plan file under `~/.claude/plans/` contains multiple top-level deliverables (`## Tier N` headings, `## N.` numbered sections, a "Deliverables" / "Phases" / "Issues" section with ≥2 bulleted entries, or an "Out of scope" / "Follow-ups" section listing future tickets). The skill suggests running the `/decompose-plan` slash command, which parses the plan, drafts an umbrella GitHub issue + N sub-issues with crossreferences, asks for user confirmation, and files them via `gh issue create`. Off-ramp: single-deliverable plans, plans with no GitHub remote, or the user saying "single PR / don't decompose".
+description: Use after ExitPlanMode succeeds on a multi-deliverable plan (≥2 of: `## Tier N`, `## N.`, "Deliverables" / "Phases" / "Out of scope" sections). Suggests `/decompose-plan` to file an umbrella GitHub issue + sub-issues. Off-ramp: single-deliverable plans, no remote, or user-declined.
 ---
 
 # Decompose (SOP)

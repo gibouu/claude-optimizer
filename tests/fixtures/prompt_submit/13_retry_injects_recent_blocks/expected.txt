@@ -1,0 +1,3 @@
+[claude-optimizer] Recent gate blocks — don't repeat what already failed:
+  - pre_exit_plan: research-first blocked, no WebSearch this turn
+  - pr_preflight: no Closes #N on 200-line diff
