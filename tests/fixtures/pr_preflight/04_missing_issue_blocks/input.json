@@ -1,0 +1,1 @@
+{"tool_input":{"command":"gh pr create --title \"Test\" --body \"Closes #99\""}}

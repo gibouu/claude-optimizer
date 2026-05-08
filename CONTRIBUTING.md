@@ -6,7 +6,8 @@ The plugin ships small bash test harnesses for the logic-heavy hooks:
 
 ```sh
 bash tests/test_prompt_submit.sh    # 12 cases — UserPromptSubmit directive logic
-bash tests/test_pre_exit_plan.sh    # 7 cases  — cm-research-first gate
+bash tests/test_pre_exit_plan.sh    # 14 cases — cm-research-first + cm-multi-plan gates
+bash tests/test_pr_preflight.sh     # 12 cases — gh pr create gate (Closes #N + scope)
 ```
 
 The runner is dependency-free — pure bash, no BATS or other test frameworks. Each fixture directory under `tests/fixtures/prompt_submit/` holds:
