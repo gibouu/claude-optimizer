@@ -28,6 +28,11 @@ STATE_DIR="$ROOT/.claude/state"
 # State must exist; if not, session_start.sh hasn't seeded yet.
 [ -d "$STATE_DIR" ] || exit 0
 
+# Per-turn marker reset: cm-research-first's PreToolUse(ExitPlanMode) gate
+# uses .websearch_this_turn (touched by post_websearch.sh) to decide whether
+# WebSearch fired *this turn*. A new prompt = a new turn, so clear it now.
+rm -f "$STATE_DIR/.websearch_this_turn" 2>/dev/null || true
+
 # Capture stdin once — both blocks may consume the UserPromptSubmit JSON
 # payload (which includes the user's prompt text).
 PAYLOAD="$(cat 2>/dev/null || true)"
@@ -85,12 +90,18 @@ prompt="$(extract_prompt)"
 # Lower-case once for all subsequent regex matching.
 lc=$(printf '%s' "$prompt" | tr '[:upper:]' '[:lower:]')
 
+# .last_prompt_complexity tracks the classification of the most recent
+# triggering prompt and feeds the cm-research-first PreToolUse gate. Off-ramp
+# and ambient prompts have no complexity; clear the file in those paths.
+COMPLEXITY_FILE="$STATE_DIR/.last_prompt_complexity"
+
 # Off-ramp regex — if any of these match, skip the directive entirely.
 # Covers: explicit overrides ("just", "quick fix"), file:line citations,
 # direct rename/delete imperatives, nits and typo fixes.
 OFFRAMP_RE='(^|[^a-z])(just |quick fix|small thing|skip the issue|no pr|no issue|nit:|typo)|[a-z_./-]+\.[a-z]+:[0-9]+|^(rename|delete|remove) [a-z_`]'
 
 if [[ "$lc" =~ $OFFRAMP_RE ]]; then
+  rm -f "$COMPLEXITY_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -99,6 +110,7 @@ fi
 TRIGGER_RE='(^|[^a-z])(i want|i.?d like|we should|we need|let.?s (add|build|make|create|fix|refactor)|how do i|why (doesn.?t|is|does)|can you (add|make|fix|build|implement|refactor)|this is (broken|annoying|slow|confusing)|feature request|the proper way|standard practice|should we|what if we|wouldn.?t it be)'
 
 if [[ ! "$lc" =~ $TRIGGER_RE ]]; then
+  rm -f "$COMPLEXITY_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -133,6 +145,9 @@ if [[ "$lc" =~ $COMPLEX_KW ]] || [ "${words:-0}" -gt 60 ] || [ "$file_mentions" 
 elif [ "$len" -lt 80 ] && [ "$file_mentions" -le 1 ]; then
   complexity="simple"
 fi
+
+# Persist for downstream gates (cm-research-first / pre_exit_plan.sh).
+echo "$complexity" > "$COMPLEXITY_FILE" 2>/dev/null || true
 
 cat <<EOF
 [claude-optimizer] Issue-driven workflow required.

@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.0 — 2026-05-08
+
+- **`cm-research-first` skill + hook-enforced gate (#27 / closes #22).** Required before invoking ExitPlanMode on a complex task: a quick WebSearch on current best practices. The skill's frontmatter description triggers when the previous turn's directive contained `[complexity: complex]`, instructing Claude to issue 1–2 WebSearch calls (problem framing + recency hint) and cite findings in the plan.
+- **PreToolUse(ExitPlanMode) gate (`scripts/pre_exit_plan.sh`).** Reads `$STATE_DIR/.last_prompt_complexity` and `$STATE_DIR/.websearch_this_turn`. If complexity is `complex` and no WebSearch was performed during the current turn, blocks the call with exit 2 and a stderr message naming the rule and bypasses (`RESEARCH_FIRST_OFF=1`, `.claude/optimizer-disabled`).
+- **PostToolUse(WebSearch) marker (`scripts/post_websearch.sh`).** Touches `.websearch_this_turn` so the gate can tell whether research was performed in the current turn. The marker is cleared at the start of every UserPromptSubmit (so each new turn re-arms the gate).
+- **`prompt_submit.sh` persists `[complexity]`.** The classifier output is now written to `.last_prompt_complexity` on every triggered prompt; cleared on off-ramp / non-trigger paths so the gate doesn't enforce on precise instructions. Sticky across cooldown matches.
+- **`hooks/hooks.json`.** New PreToolUse(matcher: `ExitPlanMode`) entry. New PostToolUse entry for matcher `WebSearch` alongside the existing `Write|Edit|MultiEdit` entry.
+- **Session banner.** `cm-research-first` added to the SessionStart skills list.
+- **Cleanup.** `session_end.sh` removes `.last_prompt_complexity` and `.websearch_this_turn` between sessions.
+- **New test harness.** `tests/test_pre_exit_plan.sh` covers 7 cases: complex+no-websearch blocks; complex+websearch allows; moderate/simple/no-tag allow; `.claude/optimizer-disabled` and `RESEARCH_FIRST_OFF=1` bypasses. The existing `tests/test_prompt_submit.sh` (12 cases) continues to pass — no regression.
+
 ## v0.6.0 — 2026-05-08
 
 - **Hook-enforced `cm-issue-driven-workflow` (#21 / closes #20).** `prompt_submit.sh` now inspects the user's prompt (jq + sed fallback for stdin JSON) and injects a directive when it detects conversational request phrasing. Off-ramp regex (precise file:line, "just X", "quick fix", direct rename/delete imperatives, "skip the issue") suppresses the directive on precise instructions. Heuristic complexity classifier rides `[complexity: simple|moderate|complex]` into the directive based on prompt length, keyword density, and file mentions. SHA-1 fingerprint cooldown via `.last_intent_fingerprint` prevents repeat-firing on identical prompts; cleared by `session_end.sh`. Promotes the SOP from model-judgment invocation to hook-level enforcement, mirroring the pattern of the existing edit-count state-checkpoint directive. Both blocks concatenate naturally when they fire on the same prompt.
