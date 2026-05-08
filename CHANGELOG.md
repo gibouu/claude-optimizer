@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.12.0 — 2026-05-08
+
+Token-efficiency calibration (#33 / closes #32). Restores conversational feel after the v0.6.0–v0.11.0 series accumulated ~6.2 KB of skill descriptions and a per-prompt directive that fired on ~70% of natural debugging chatter. Symptom: model loops on the same fix because every retry triggers full ceremony. The architecture is unchanged; only the calibration moved.
+
+- **R1. Tighter trigger / wider off-ramp** in `scripts/prompt_submit.sh`. Trigger regex now requires "to <verb>" or "(a|an|the) <noun>" structure, dropping casual matches like "can you check that" or "we need to debug this". Off-ramp regex catches debug-mode chatter ("still broken", "doesn't work", "didn't work", "tried this", "same issue", "again", "debug", "test it", "check the", "look at"). Estimated false-positive reduction on natural conversation: 70% → ~15%.
+- **R2. Mutually exclusive directive blocks.** When the edit-count cadence and the issue-workflow trigger would both fire on the same turn, only the issue-workflow block emits. Worst-case per-prompt cost: 1,261 B → ~210 B.
+- **R3. `.recent_blocks` rolling buffer.** Each gate (`pre_exit_plan.sh`, `pr_preflight.sh`, `stop.sh`) appends a one-line record to `.claude/state/.recent_blocks` (FIFO, last 3) when it blocks. `prompt_submit.sh` injects this content as additional context only when the user's prompt looks like a retry ("still", "again", "didn't work", "doesn't work", "tried", "same issue/problem"). Closes the cross-turn no-learning-loop gap that produced the "fixing same problem 5 times in a row" symptom.
+- **R4. Compressed skill descriptions.** All 11 `skills/*/SKILL.md` frontmatter `description:` fields trimmed to ≤200 B each. Total dropped from ~6.2 KB → ~1.7 KB. SOP detail moved to skill bodies where it belongs.
+- **R5. Single-line SessionStart banner.** Skill list and rules removed (skills already loaded via system message; rules in CLAUDE.md). New banner: `[claude-optimizer active] last state write: 2h ago | state: .claude/state/`. Saves ~400 B/session.
+- **R6. PROGRESS.md auto-pruning.** When PROGRESS.md exceeds header + 100 entries (102 lines), `post_edit.sh` archives oldest entries to `.claude/state/archive/PROGRESS-YYYYMM.md` and truncates the active file. Prevents week-over-week bloat from leaking into every cm-session-resume read.
+- **R7. Compressed gate stderr blocks.** Each block message in `pre_exit_plan.sh`, `pr_preflight.sh`, `stop.sh` shrunk from 660–863 B to ~220 B. Drops the redundant "hard requirement under this project's claude-optimizer plugin contract" footer (already established at session start).
+- **R8. 3-deep ring-buffer cooldown.** Replaced single-fingerprint `.last_intent_fingerprint` with `.recent_fingerprints` (FIFO, last 3). If the new prompt's fp matches any of the last 3, the directive is suppressed — debug-loop sentinel that lets iterative fixes proceed without ceremony interrupting every turn.
+
+### State surface changes
+
+- `.last_intent_fingerprint` — removed (replaced by `.recent_fingerprints`).
+- `.recent_fingerprints` — new (3-deep ring of recent prompt fingerprints).
+- `.recent_blocks` — new (3-deep ring of recent gate-block records).
+- `.claude/state/archive/` — new (auto-created when PROGRESS.md is pruned).
+
+`session_end.sh` cleans up the new files alongside the existing ones.
+
+### Tests
+
+- 13/13 `test_prompt_submit.sh` (was 12; +1 for retry-context injection).
+- 14/14 `test_pre_exit_plan.sh` (unchanged count; stderr expectations updated).
+- 12/12 `test_pr_preflight.sh` (unchanged count; stderr expectations updated).
+
 ## v0.11.0 — 2026-05-08
 
 Closes the Tier 4 polish bundle from #20's plan (last in the issue-driven-workflow series).

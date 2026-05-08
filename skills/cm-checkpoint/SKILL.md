@@ -1,6 +1,6 @@
 ---
 name: cm-checkpoint
-description: Use after every successful `git commit`, before any `git push`, before any `gh pr create`, when the user signals completion ("done", "ship it", "looks good", "push it", "merge it"), and whenever the harness PromptSubmit or Stop hook reports stale state. The single bundled "save progress" skill — atomically writes to all four .claude/state/ files in one pass, so the model has one obvious checkpoint moment instead of remembering to invoke cm-task-tracker, cm-memory, and others separately.
+description: Use after a commit, before push/PR, on user completion signals ("done", "ship it"), or when prompt_submit/stop hooks report stale state. Atomically writes PROGRESS / TASKS / DECISIONS / MEMORY in one pass.
 ---
 
 # Bundled Checkpoint

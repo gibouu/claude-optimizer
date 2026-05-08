@@ -1,6 +1,6 @@
 ---
 name: cm-research-first
-description: Use whenever the most recent user prompt was tagged `[complexity: complex]` by the claude-optimizer prompt directive (a substring of the previous turn's injected context). Concrete trigger: the last UserPromptSubmit hook output included `[claude-optimizer] Issue-driven workflow required.` AND `[complexity: complex]`. Required before invoking any planning tool (ExitPlanMode, /plan, brainstorming) on a complex request: call WebSearch with the problem framing plus "best practices 2026" or similar, read 2–3 results, and cite the findings in the resulting plan. The plugin's PreToolUse(ExitPlanMode) gate enforces this — without a WebSearch tool call in the current turn, ExitPlanMode is blocked.
+description: Use when the prior directive contained `[complexity: complex]`. Required before any planning tool: WebSearch best practices (problem + "2026"), read 2-3 results, cite in the plan. PreToolUse(ExitPlanMode) gate enforces.
 ---
 
 # Research-First (SOP)

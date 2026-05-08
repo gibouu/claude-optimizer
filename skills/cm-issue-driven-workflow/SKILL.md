@@ -1,6 +1,6 @@
 ---
 name: cm-issue-driven-workflow
-description: Use whenever the user describes a problem, idea, feature, or fix in conversational language without giving a precise file:line instruction. Concrete trigger phrases include "I want to…", "we should…", "let's add", "we need", "how do I…", "why doesn't…", "can you…", "this is broken/annoying/slow", "feature request", or any restating of a desired capability or pain point. Also use when the user references "the proper way" or "standard practice" for handling work. Refines the request via brainstorming, files a GitHub issue, branches, fixes, opens a PR with `Closes #N`, self-reviews, and merges — the user's standing operating procedure for non-trivial work across all repos.
+description: Use when the user proposes a new feature, refactor, or non-trivial change in conversational language ("I want to add", "we should refactor", "feature request"). Files a GitHub issue, branches, fixes, opens a PR with `Closes #N`. Off-ramp on debug iteration / precise file:line / "just X".
 ---
 
 # Issue-Driven Workflow (SOP)
