@@ -1,0 +1,6 @@
+[claude-optimizer] Issue-driven workflow required.
+The user's prompt looks like a conversational request rather than a precise instruction. [complexity: simple]
+Before responding:
+- Invoke cm-issue-driven-workflow to refine the request, file a GitHub issue, branch, fix, and open a PR with `Closes #<N>`.
+- If the prompt is genuinely a one-line precise edit, an off-ramp question, or out of scope (no GitHub remote, ≤10-line single-file fix), say so explicitly in one sentence and proceed without ceremony — do not silently skip.
+This is a hard requirement under this project's claude-optimizer plugin contract. Do this BEFORE addressing the user's prompt; do not skip or defer.
