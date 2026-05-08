@@ -29,6 +29,15 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/pre_exit_plan.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/pr_preflight.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [

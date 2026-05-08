@@ -1,0 +1,1 @@
+{"tool_input":{"command":"gh pr create --title \"Partial fix\" --body \"Refs #20\nThis only addresses part of the issue.\""}}

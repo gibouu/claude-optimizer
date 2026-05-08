@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.10.0 — 2026-05-08
+
+- **PR pre-flight gate (#30 / closes #25).** New `scripts/pr_preflight.sh` PreToolUse(Bash) hook wired in `hooks/hooks.json`. Fires on every Bash command but exits silently unless the command contains `gh pr create`. For non-trivial diffs (≥ 50 lines OR ≥ 2 files vs. main), the command body must include `Closes #N` or `Refs #N` referencing a real OPEN GitHub issue. Closed or missing issue → block. Scope-bloat warning at > 300 lines / > 5 files (advisory, not blocking).
+- **Diff-size detection.** Uses `git diff --shortstat <main-branch>...HEAD` to count insertions and changed files. Auto-detects the main branch name via `origin/HEAD`; defaults to `main` if that fails.
+- **Bypasses.** `PR_PREFLIGHT_OFF=1` env (one-off), `.claude/optimizer-disabled` (whole plugin), trivial-diff bypass below the threshold.
+- **Test escape hatches** (documented; not for production): `PR_PREFLIGHT_TEST_LINES`, `PR_PREFLIGHT_TEST_FILES` override the diff measurement; `PR_PREFLIGHT_ISSUE_STATES="20:OPEN,42:CLOSED"` mocks issue states without calling `gh`.
+- **New test harness.** `tests/test_pr_preflight.sh` with 12 cases: open-issue allows, no-closes blocks, closed-issue blocks, missing-issue blocks, trivial-diff allows, refs-partial-close allows, non-gh command passes through, gh-issue-list (different subcommand) passes through, env bypass, plugin-disabled bypass, scope-bloat warning, multiple-closes one-closed blocks. No regression in `test_prompt_submit.sh` (12) or `test_pre_exit_plan.sh` (14).
+
 ## v0.9.0 — 2026-05-08
 
 - **`cm-decompose` skill + `/decompose-plan` slash command (#29 / closes #24).** Bridges Plan-mode → backlog. After a plan is approved, the skill nudges the model to suggest decomposition when the plan has ≥2 discrete deliverables (`## Tier N`, `## N.`, "Deliverables" / "Phases" / "Issues" / "Out of scope" sections). The slash command parses the plan, drafts an umbrella issue + sub-issues with `Refs #<umbrella>` cross-references, asks the user to confirm, then runs `gh issue create` for each. Umbrella body has a `- [ ] #<sub>: <title>` checklist that auto-ticks as sub-PRs merge via `Closes #<sub>`. Reflects the user's stated workflow: "create a list of issues to be able to fix them one by one... break it down in smaller bite-size products."
