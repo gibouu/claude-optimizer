@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# Runs before every ExitPlanMode tool use.
+# Runs before every ExitPlanMode tool use. The single PreToolUse(ExitPlanMode)
+# gate that runs all of the plugin's plan-finalisation checks in sequence.
 #
-# Single job: enforce cm-research-first. When the most recent triggering
-# prompt was classified `[complexity: complex]` AND no WebSearch tool was
-# called during the current turn, block ExitPlanMode. The user's stated
-# workflow: complex tasks deserve a quick best-practices search before any
-# plan is finalised.
+# Checks (in order — first to block wins):
+#   1. cm-research-first  — complex prompt + no WebSearch this turn → block.
+#   2. cm-multi-plan      — moderate/complex prompt + plan file lacks any
+#                            "alternatives / tradeoffs / decisions / options /
+#                            approaches / comparison / considered" heading
+#                            → block.
 #
 # Block path: exit 2 + stderr message — Claude Code surfaces stderr to the
-# model and refuses the tool call.
-# Allow path: exit 0.
+# model and refuses the tool call. Allow path: exit 0.
 #
-# Bypasses (in priority order):
+# Top-level bypasses (skip ALL checks):
 #   - $ROOT/.claude/optimizer-disabled  (whole-plugin opt-out)
-#   - RESEARCH_FIRST_OFF=1 env var      (one-off bypass)
-#   - .last_prompt_complexity missing or != "complex"  (no enforcement)
-#   - .websearch_this_turn present       (research was performed)
+#
+# Per-check bypasses (skip just that check):
+#   - RESEARCH_FIRST_OFF=1   skips check 1.
+#   - MULTI_PLAN_OFF=1       skips check 2.
 set -euo pipefail
 
 ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
@@ -23,9 +25,6 @@ STATE_DIR="$ROOT/.claude/state"
 
 # Whole-plugin opt-out.
 [ -f "$ROOT/.claude/optimizer-disabled" ] && exit 0
-
-# One-off bypass.
-[ "${RESEARCH_FIRST_OFF:-}" = "1" ] && exit 0
 
 # State must exist; otherwise nothing to enforce.
 [ -d "$STATE_DIR" ] || exit 0
@@ -37,16 +36,18 @@ WEBSEARCH_MARKER="$STATE_DIR/.websearch_this_turn"
 [ -f "$COMPLEXITY_FILE" ] || exit 0
 
 complexity="$(cat "$COMPLEXITY_FILE" 2>/dev/null || echo)"
-case "$complexity" in
-  complex) ;;
-  *) exit 0 ;;  # only enforce on complex tasks
-esac
 
-# WebSearch was performed this turn → allow.
-[ -f "$WEBSEARCH_MARKER" ] && exit 0
+# ── Check 1: cm-research-first ──────────────────────────────────────────
+check_research_first() {
+  [ "${RESEARCH_FIRST_OFF:-}" = "1" ] && return 0
+  case "$complexity" in
+    complex) ;;
+    *) return 0 ;;  # only enforce on complex
+  esac
 
-# Otherwise block.
-cat >&2 <<EOF
+  [ -f "$WEBSEARCH_MARKER" ] && return 0  # research was performed
+
+  cat >&2 <<EOF
 [claude-optimizer] ExitPlanMode blocked by cm-research-first.
 The current task was tagged \`[complexity: complex]\` but no WebSearch tool was called this turn.
 
@@ -57,8 +58,83 @@ Required: invoke cm-research-first to do a quick best-practices search before fi
 
 Bypasses (use sparingly, mention to the user):
 - Set RESEARCH_FIRST_OFF=1 for the next ExitPlanMode call.
-- Touch \`$STATE_DIR/.claude/optimizer-disabled\` to disable the whole plugin.
+- Touch \`$ROOT/.claude/optimizer-disabled\` to disable the whole plugin.
 
 This is a hard requirement under this project's claude-optimizer plugin contract.
 EOF
-exit 2
+  exit 2
+}
+
+# ── Check 2: cm-multi-plan ──────────────────────────────────────────────
+# Locate the most recently modified plan file under ~/.claude/plans/ and
+# verify it contains an "alternatives / tradeoffs / decisions / options /
+# approaches / comparison / considered" heading. Trivial plans (under 30
+# lines) bypass.
+check_multi_plan() {
+  [ "${MULTI_PLAN_OFF:-}" = "1" ] && return 0
+  case "$complexity" in
+    moderate|complex) ;;
+    *) return 0 ;;  # simple / unknown → no enforcement
+  esac
+
+  local plans_dir="$HOME/.claude/plans"
+  [ -d "$plans_dir" ] || return 0
+
+  # Pick the most recently modified plan file. Use a glob safely.
+  local plan_file=""
+  local f mtime now newest_mtime=0
+  now=$(date +%s 2>/dev/null || echo 0)
+  for f in "$plans_dir"/*.md; do
+    [ -f "$f" ] || continue
+    mtime=$(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null || echo 0)
+    if [ "$mtime" -gt "$newest_mtime" ]; then
+      newest_mtime=$mtime
+      plan_file=$f
+    fi
+  done
+  [ -n "$plan_file" ] || return 0
+
+  # Stale-plan guard: if the most recent plan file is older than an hour,
+  # we're probably not actually in plan mode for that plan — fall through.
+  if [ "$now" -gt 0 ] && [ "$newest_mtime" -gt 0 ]; then
+    if [ $((now - newest_mtime)) -gt 3600 ]; then
+      return 0
+    fi
+  fi
+
+  # Trivial-plan bypass.
+  local lines
+  lines=$(wc -l < "$plan_file" 2>/dev/null | tr -d ' ' || echo 0)
+  [ "${lines:-0}" -lt 30 ] && return 0
+
+  # Look for any canonical alternatives-keyword anywhere on a heading line.
+  # POSIX ERE, case-insensitive. The pattern allows compound headings like
+  # "## Design decisions" or "### Approaches considered".
+  if grep -qiE '^#{1,3}[[:space:]]+.*(alternatives?|options|approaches|tradeoffs?|decisions?|considered|comparison)' "$plan_file" 2>/dev/null; then
+    return 0
+  fi
+
+  cat >&2 <<EOF
+[claude-optimizer] ExitPlanMode blocked by cm-multi-plan.
+The current task was tagged \`[complexity: $complexity]\` but the plan file does not surface alternatives.
+Plan file: $plan_file
+
+Required: add a section with one of these canonical headings (case-insensitive, ##/### level):
+  alternatives, options, approaches, tradeoffs, decisions, considered, comparison
+
+Inside that section, list 2–3 distinct approaches with explicit pros/cons and mark the chosen one. The user's workflow: "show me two or three plans... we could pick and choose the best portions of each."
+
+Then call ExitPlanMode again.
+
+Bypasses (use sparingly, mention to the user):
+- Set MULTI_PLAN_OFF=1 for the next ExitPlanMode call.
+- Touch \`$ROOT/.claude/optimizer-disabled\` to disable the whole plugin.
+
+This is a hard requirement under this project's claude-optimizer plugin contract.
+EOF
+  exit 2
+}
+
+check_research_first
+check_multi_plan
+exit 0

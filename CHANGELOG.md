@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.8.0 — 2026-05-08
+
+- **`cm-multi-plan` skill + alternatives gate (#28 / closes #23).** Required for moderate or complex tasks: the plan file must include an "Alternatives" / "Tradeoffs" / "Decisions" / etc. section listing 2–3 distinct approaches with explicit pros/cons before settling on a recommendation. Mirrors the user's stated workflow: "show me two or three plans... we could pick and choose."
+- **`pre_exit_plan.sh` extended with a second check.** The PreToolUse(ExitPlanMode) gate now runs both `cm-research-first` and `cm-multi-plan` checks in sequence. Multi-plan looks at the most recently modified plan file under `~/.claude/plans/` (within the last hour) and greps for any canonical heading: `alternatives`, `options`, `approaches`, `tradeoffs`, `decisions`, `considered`, `comparison` (case-insensitive, anywhere on a `^#{1,3}` line — so compound headings like "## Design decisions" satisfy the gate).
+- **Bypasses.** `MULTI_PLAN_OFF=1` env for one-off bypass; trivial plans (under 30 lines) auto-bypass; simple-complexity prompts skip enforcement; `.claude/optimizer-disabled` disables both checks.
+- **Test harness extended.** `tests/test_pre_exit_plan.sh` now covers 14 cases (was 7) — adds 7 new fixtures for the multi-plan check (block on no-alternatives at moderate and complex, allow with `## Alternatives`, allow with `## Design decisions`, simple-complexity bypass, trivial-plan bypass, env bypass). Test runner now isolates `$HOME` per case so the gate's `~/.claude/plans/` lookup hits a sandbox.
+- **Session banner.** `cm-multi-plan` added to the SessionStart skills list.
+
 ## v0.7.0 — 2026-05-08
 
 - **`cm-research-first` skill + hook-enforced gate (#27 / closes #22).** Required before invoking ExitPlanMode on a complex task: a quick WebSearch on current best practices. The skill's frontmatter description triggers when the previous turn's directive contained `[complexity: complex]`, instructing Claude to issue 1–2 WebSearch calls (problem framing + recency hint) and cite findings in the plan.

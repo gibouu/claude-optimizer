@@ -40,10 +40,16 @@ for case_dir in "$FIXTURES"/*/; do
   [ -f "$expected_exit_file" ] || { printf '  SKIP %s (no expected_exit)\n' "$name"; continue; }
 
   tmpdir=$(mktemp -d)
-  mkdir -p "$tmpdir/.claude/state"
+  mkdir -p "$tmpdir/.claude/state" "$tmpdir/.claude/plans"
 
   saved_path="$PATH"
+  saved_home="$HOME"
   saved_research_off="${RESEARCH_FIRST_OFF:-__UNSET__}"
+  saved_multi_plan_off="${MULTI_PLAN_OFF:-__UNSET__}"
+
+  # Isolate $HOME so the multi-plan gate's $HOME/.claude/plans lookup hits
+  # the tmpdir, not the developer's real plans directory.
+  export HOME="$tmpdir"
 
   if [ -f "$setup" ]; then
     # shellcheck disable=SC1090
@@ -52,17 +58,23 @@ for case_dir in "$FIXTURES"/*/; do
 
   stderr_capture=$(mktemp)
   set +e
-  CLAUDE_PROJECT_DIR="$tmpdir" bash "$HOOK" </dev/null 2>"$stderr_capture" >/dev/null
+  CLAUDE_PROJECT_DIR="$tmpdir" HOME="$tmpdir" bash "$HOOK" </dev/null 2>"$stderr_capture" >/dev/null
   actual_exit=$?
   set -e
   actual_stderr=$(cat "$stderr_capture")
   rm -f "$stderr_capture"
 
   PATH="$saved_path"
+  export HOME="$saved_home"
   if [ "$saved_research_off" = "__UNSET__" ]; then
     unset RESEARCH_FIRST_OFF
   else
     export RESEARCH_FIRST_OFF="$saved_research_off"
+  fi
+  if [ "$saved_multi_plan_off" = "__UNSET__" ]; then
+    unset MULTI_PLAN_OFF
+  else
+    export MULTI_PLAN_OFF="$saved_multi_plan_off"
   fi
 
   expected_exit=$(cat "$expected_exit_file" | tr -d '[:space:]')
