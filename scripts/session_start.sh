@@ -77,7 +77,7 @@ cat <<EOF | sed '/^$/d'
 Skills available: cm-session-resume, cm-memory, cm-task-tracker,
                   cm-token-discipline, cm-quality-gate, cm-secret-hygiene,
                   cm-checkpoint, cm-issue-driven-workflow, cm-research-first,
-                  cm-multi-plan.
+                  cm-multi-plan, cm-decompose.
 State: .claude/state/{MEMORY,DECISIONS,PROGRESS,TASKS}.md
 ${LAST_WRITE_LINE}
 Rules:

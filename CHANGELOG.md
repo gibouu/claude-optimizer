@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.9.0 — 2026-05-08
+
+- **`cm-decompose` skill + `/decompose-plan` slash command (#29 / closes #24).** Bridges Plan-mode → backlog. After a plan is approved, the skill nudges the model to suggest decomposition when the plan has ≥2 discrete deliverables (`## Tier N`, `## N.`, "Deliverables" / "Phases" / "Issues" / "Out of scope" sections). The slash command parses the plan, drafts an umbrella issue + sub-issues with `Refs #<umbrella>` cross-references, asks the user to confirm, then runs `gh issue create` for each. Umbrella body has a `- [ ] #<sub>: <title>` checklist that auto-ticks as sub-PRs merge via `Closes #<sub>`. Reflects the user's stated workflow: "create a list of issues to be able to fix them one by one... break it down in smaller bite-size products."
+- **No hook gate.** Auto-creating GitHub issues from a hook would be too aggressive; the slash command is purely user-invoked. The skill description gets the model to suggest it at the right moment.
+- **Session banner.** `cm-decompose` added to the SessionStart skills list.
+- **No regression.** `tests/test_prompt_submit.sh` (12 cases) and `tests/test_pre_exit_plan.sh` (14 cases) still green.
+
 ## v0.8.0 — 2026-05-08
 
 - **`cm-multi-plan` skill + alternatives gate (#28 / closes #23).** Required for moderate or complex tasks: the plan file must include an "Alternatives" / "Tradeoffs" / "Decisions" / etc. section listing 2–3 distinct approaches with explicit pros/cons before settling on a recommendation. Mirrors the user's stated workflow: "show me two or three plans... we could pick and choose."
