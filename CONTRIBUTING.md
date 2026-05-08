@@ -2,10 +2,11 @@
 
 ## Verifying changes
 
-The plugin ships a small bash test harness for the prompt-submit hook (the most logic-heavy script in the project):
+The plugin ships small bash test harnesses for the logic-heavy hooks:
 
 ```sh
-bash tests/test_prompt_submit.sh
+bash tests/test_prompt_submit.sh    # 12 cases — UserPromptSubmit directive logic
+bash tests/test_pre_exit_plan.sh    # 7 cases  — cm-research-first gate
 ```
 
 The runner is dependency-free — pure bash, no BATS or other test frameworks. Each fixture directory under `tests/fixtures/prompt_submit/` holds:
