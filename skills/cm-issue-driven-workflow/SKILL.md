@@ -48,7 +48,7 @@ Invoke `superpowers:brainstorming` (or its substitute) to ask 1-2 sharp clarifyi
 gh issue create --title "<short imperative>" --body "<repro + acceptance>"
 ```
 - Title: under 70 characters, sentence form.
-- Body sections: TL;DR, repro / current behaviour, acceptance criteria. Skip sections that don't apply for small features.
+- Body should follow the project's issue templates under `.github/ISSUE_TEMPLATE/` if present. The plugin ships canonical `feature_request.md` and `bug_report.md` templates with sections: **TL;DR · Problem (or Repro) · Acceptance · Out of scope · Risk · Alternatives considered**. Skip sections that don't apply for small features; keep "Acceptance" and "Out of scope" even on small issues since the cm-decompose / pr-preflight gates downstream rely on them.
 - Capture the issue number from the returned URL.
 
 ### 3. Branch off `main`
