@@ -2,7 +2,7 @@
 # Runs after every Write/Edit/MultiEdit tool use.
 # Three jobs: (1) scan state files for secrets, (2) auto-append a one-line
 # entry to PROGRESS.md so state actually accrues without depending on the
-# model invoking cm-memory, (3) nudge Claude to checkpoint every 10 edits.
+# model invoking cm-checkpoint, (3) nudge Claude to checkpoint every 10 edits.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
