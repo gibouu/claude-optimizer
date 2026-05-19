@@ -14,7 +14,7 @@ SessionStart hook ──► init_state.sh (idempotent)
                           │
               ┌───────────┴───────────┐
               ▼                       ▼
-       cm-session-resume         cm-memory
+       cm-session-resume         cm-checkpoint
               │                       │
               ▼                       ▼
         Claude reads state    Claude maintains state

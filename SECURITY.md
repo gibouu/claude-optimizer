@@ -12,7 +12,7 @@ Claude writes to `MEMORY.md`, `DECISIONS.md`, `PROGRESS.md`, and `TASKS.md`. If 
 
 **Mitigations:**
 
-- The `cm-memory` skill explicitly tells Claude to strip anything wrapped in `<private>...</private>` tags before writing. Use this when you have to share something sensitive: `<private>db connection: postgres://...</private>`.
+- The `cm-checkpoint` skill explicitly tells Claude to strip anything wrapped in `<private>...</private>` tags before writing. Use this when you have to share something sensitive: `<private>db connection: postgres://...</private>`.
 - The recommended `.gitignore` snippet (see `templates/gitignore-snippet.txt`) shows how to keep state files local to each developer's machine if your repo is public or your sessions cover sensitive material.
 - Run `git diff .claude/state/` before any commit that touches state. Treat it like reviewing a `.env` change.
 

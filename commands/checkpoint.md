@@ -2,7 +2,7 @@
 description: Force a memory checkpoint — append progress, update task statuses, log any new decisions, before context gets crowded.
 ---
 
-Apply the `cm-memory` and `cm-task-tracker` skills now.
+Apply the `cm-checkpoint` skill now.
 
 1. For each `IN_PROGRESS` task in `.claude/state/TASKS.md`, tick any newly-completed steps and add any new sub-steps discovered this turn.
 2. Append one line to `.claude/state/PROGRESS.md` summarising what happened since the last entry. Newest first.

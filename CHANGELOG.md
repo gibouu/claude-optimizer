@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.13.0 — 2026-05-19
+
+State-skill consolidation (#34). The plugin shipped four skills that all wrote/read `.claude/state/` — `cm-memory`, `cm-checkpoint`, `cm-task-tracker`, `cm-session-resume`. `cm-checkpoint` was added (v0.8.0) as a unifier that *delegated to* `cm-memory` + `cm-task-tracker`, but the originals were never removed, leaving the 4-way "which skill now?" trigger ambiguity documented in `docs/ISSUE-skills-rarely-invoked.md`. This finishes that consolidation.
+
+- **`cm-checkpoint` is now self-contained.** It absorbs `cm-memory`'s memory protocol (four-file table, entry format, privacy/secret handling, `grep`-first read discipline) and `cm-task-tracker`'s ledger format, scope-creep "stop and ask" rule, done-means-done criteria, and pruning. Its `description:` broadened to cover the absorbed triggers (multi-step work start, non-obvious decision, prior-work reference).
+- **Deleted `skills/cm-memory/` and `skills/cm-task-tracker/`.** State skills 4 → 2 (`cm-checkpoint` write-side + `cm-session-resume` read-side).
+- **No hook-script behavior change.** `prompt_submit.sh`, `stop.sh`, `optimizer_audit.sh` already named `cm-checkpoint`; only stale comments in `post_edit.sh` and live cross-refs in `commands/checkpoint.md`, `cm-session-resume`, `cm-issue-driven-workflow` were updated. Test suites unchanged and green.
+- Docs updated: `README.md` (tree + counts), `SECURITY.md`, `docs/ARCHITECTURE.md`. `docs/ISSUE-skills-rarely-invoked.md` and `docs/UPSTREAM.md` left as historical record.
+
 ## v0.12.0 — 2026-05-08
 
 Token-efficiency calibration (#33 / closes #32). Restores conversational feel after the v0.6.0–v0.11.0 series accumulated ~6.2 KB of skill descriptions and a per-prompt directive that fired on ~70% of natural debugging chatter. Symptom: model loops on the same fix because every retry triggers full ceremony. The architecture is unchanged; only the calibration moved.

@@ -7,7 +7,7 @@ A small, opinionated Claude Code plugin that fixes the four things that go wrong
 3. **Drift** — Claude wanders off the original task into related-but-unrequested work.
 4. **False completions** — "done" before tests, types, or lints pass.
 
-It does this with six skills, five hook scripts, two slash commands, and four plain-text state files. Local-only. No daemon, no database, no network calls.
+It does this with nine skills, eight hook scripts, two slash commands, and four plain-text state files. Local-only. No daemon, no database, no network calls.
 
 ## What's inside
 
@@ -15,12 +15,12 @@ It does this with six skills, five hook scripts, two slash commands, and four pl
 claude-optimizer/
 ├── .claude-plugin/plugin.json
 ├── skills/
-│   ├── cm-memory/                 # MEMORY/DECISIONS/PROGRESS protocol
+│   ├── cm-checkpoint/             # write-side: PROGRESS/TASKS/DECISIONS/MEMORY + task ledger
+│   ├── cm-session-resume/         # read-side: what to do at session start
 │   ├── cm-token-discipline/       # output-bloat rules
-│   ├── cm-task-tracker/           # explicit task ledger
-│   ├── cm-session-resume/         # what to do at session start
 │   ├── cm-quality-gate/           # checks before "done"
-│   └── cm-secret-hygiene/         # what files Claude must never read or log
+│   ├── cm-secret-hygiene/         # what files Claude must never read or log
+│   └── …                          # cm-issue-driven-workflow, cm-multi-plan, cm-research-first, cm-decompose
 ├── hooks/hooks.json               # SessionStart, PostToolUse, Stop, SessionEnd
 ├── scripts/
 │   ├── init_state.sh              # creates .claude/state/ safely

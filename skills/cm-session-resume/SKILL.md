@@ -24,4 +24,4 @@ Triggered automatically by SessionStart. Runs once.
 
 ## Cost
 
-This whole flow should be 4 file reads max, all small. If a state file has grown past ~500 lines, the file is wrong — archive old entries (see `cm-task-tracker` and `cm-memory`).
+This whole flow should be 4 file reads max, all small. If a state file has grown past ~500 lines, the file is wrong — archive old entries (see `cm-checkpoint`).

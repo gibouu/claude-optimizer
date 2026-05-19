@@ -67,7 +67,7 @@ Implement the change. While doing so, honour the project's other auto-active ski
 - `cm-secret-hygiene` — never read or write sensitive files / values.
 - `cm-checkpoint` — write meaningful state entries when crossing milestones.
 
-For multi-step features, use `cm-task-tracker` to keep `TASKS.md` current.
+For multi-step features, use `cm-checkpoint` to keep `TASKS.md` current.
 
 ### 5. Test
 Run real verification before claiming done — see `cm-quality-gate`. The literal word "done" should not appear in your response without evidence (tests passed, manual exercise succeeded, output verified).
